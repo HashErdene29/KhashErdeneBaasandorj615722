@@ -1,0 +1,138 @@
+body {
+    font-family: "Open Sans" sans-serif;
+    background-color: #f3f3f3;
+}
+
+.navbar-nav {
+    width: 30% !important;
+}
+
+.headerTitle{
+    font-weight: 600    ;
+    font-size: 16px;
+}
+
+.navbar {
+    background-color: white !important;
+}
+
+.nav-link {
+    font-size: 13px !important;
+    margin: 0 25px 0 0;
+    color: black !important;
+}
+
+.sectionStyle{
+    background-color: #374777;
+    min-height: 85vh;
+}
+.sectionTitle {
+    font-size: 42px;
+    color: white;
+    text-align: center;
+    line-height: 200px;
+}
+
+.vertical-center {
+    /* margin: 0;
+    position: absolute;
+    top: 22%;
+    left: 31%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%); */
+  }
+
+.vr {
+    border-left: 2px solid grey;
+    height: 400px;
+    background-color:unset !important;
+}
+
+.sectionText{
+    font-weight: bold;
+}
+
+.secondRow {
+    margin: 50px 180px 0 50px;
+}
+
+.mainContent{
+    background-color: #f3f3f3;
+}
+
+.submitBtn {
+    color: white;
+    background-color: black;
+    border-radius: 5px;
+    border: 2px solid black;
+    padding: 0 10px;
+}
+
+.atag{
+    text-decoration: none;
+    font-weight: lighter;
+}
+
+.firstRow {
+    margin: 48px 0 50px 0;
+}
+
+.rowTitle{
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.azureBtn {
+    width: 100%;
+    border: none;
+    background-color: white;
+    height: 45px;
+    border-radius: 5px;
+    border: 2px solid white;
+}
+
+.subtext {
+    color: #9a9ca1;
+}
+
+.subfont {
+    font-size: 14px;
+
+}
+
+.hrline {
+    width: 100%; 
+    text-align: center; 
+    border-bottom: 1px solid #dcdcdc; 
+    line-height: 0.1em;
+    margin: 10px 0 20px; 
+ } 
+ 
+ .hrline span { 
+     background: #f3f3f3;
+     padding:0 10px; 
+ }
+
+ .textRight{
+    text-align: end;
+    font-weight: 700;
+ }
+
+ .loginbtn {
+    width: 100%;
+    background-color: black;
+    color: white;
+    border: 2px solid black;
+    border-radius: 5px;
+    height: 40px;
+ }
+
+ .footerStyle {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #e6e6e6;
+    text-align: end;
+    padding: 0 10px 0 0;
+ }

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shopping Cart</title>
+
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootswatch/4.4.1/united/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-bzjLLgZOhgXbSvSc5A9LWWo/mSIYf7U7nFbmYIB2Lgmuiw3vKGJuu+abKoaTx4W6"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="css/main-styles.css" />
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.js"
+      integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.4.1/js/bootstrap.js"
+      integrity="sha256-66f6uQTQkvHF8jpniLWJjnteEfmQaC/tATFew/nTBA8="
+      crossorigin="anonymous"
+    ></script>
+  </head>
+
+  <body>
+    <header>
+      <!-- Start Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-dark bg-info">
+        <a style="padding-right: 2em" class="navbar-brand" href="index.html"
+          >Shopping Cart</a
+        >
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarColor01"
+          aria-controls="navbarColor01"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarColor01">
+          <ul class="navbar-nav mr-auto">
+            <li
+              class="nav-item"
+              style="
+                border-left: white 1px solid;
+                padding-left: 2em;
+                padding-right: 2em;
+              "
+            >
+              <a class="nav-link" href="">Home</a>
+            </li>
+          </ul>
+          <form class="form-inline my-2 my-lg-0">
+            <span style="color: #ffffff; margin-right: 20px"
+              >Welcome,
+              <span id="userName" style="text-decoration: underline"></span
+            ></span>
+            <button
+              type="button"
+              class="btn btn-outline-info"
+              id="logoutBtn"
+              onclick="signOut()"
+              style="background-color: white"
+            >
+              Log out
+            </button>
+          </form>
+        </div>
+      </nav>
+      <!-- End Navbar -->
+    </header>
+
+    <!-- Start main-content -->
+    <main>
+      <div style="padding-top: 1em" class="container">
+        <!-- main content here -->
+        <h3>Product List</h3>
+        <hr />
+
+        <div
+          style="margin-top: 1em"
+          id="divPatientsList"
+          style="font-size: 1em"
+        >
+          <table class="table table-striped" id="mytable">
+            <thead>
+              <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Price</th>
+                <th scope="col">Image</th>
+                <th scope="col">Stock</th>
+                <th scope="col">Actions</th>
+              </tr>
+              <tr></tr>
+            </thead>
+            <tbody id="tbodyProductList"></tbody>
+          </table>
+        </div>
+        <h3>Your shopping cart</h3>
+        <div
+          style="margin-top: 1em"
+          id="divPatientsList"
+          style="font-size: 1em"
+        >
+          <table class="table table-striped" id="cartTable">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Price</th>
+                <th scope="col">Total</th>
+                <th scope="col">Quantity</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyCartList"></tbody>
+            <tfoot>
+              <tr>
+                <td></td>
+                <td></td>
+                <td>Total:</td>
+                <td id="totalSum">0</td>
+              </tr>
+            </tfoot>
+          </table>
+          <div id="big-text"></div>
+          <button
+            type="button"
+            class="btn btn-info float-right"
+            id="placeOrder"
+            onClick="updateProduct()"
+          >
+            Place Order
+          </button>
+        </div>
+      </div>
+    </main>
+    <!-- End main-content -->
+    <script>
+      const token = localStorage.getItem("token");
+      const cart = [];
+      const userId = localStorage.getItem("username");
+      console.log("test", userId, localStorage.getItem("username"));
+      document.getElementById("userName").textContent =
+        localStorage.getItem("username");
+
+      fetch("http://localhost:3000/products/all", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          fetch(`http://localhost:3000/cart/all/${userId}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.length > 0) {
+                data.forEach((element) => {
+                  cart.push(element);
+                  renderCart();
+                  document.getElementById("big-text").style.display = "none";
+                });
+              } else {
+                document.getElementById("cartTable").style.display = "none";
+                document.getElementById("placeOrder").style.display = "none";
+
+                const text = document.createElement("h3");
+                text.innerText = "There is no item in your shopping cart!";
+                const bigText = document.getElementById("big-text");
+                bigText.appendChild(text);
+              }
+            });
+          const tbody = document.querySelector("#tbodyProductList");
+
+          for (const product of data) {
+            const newRow = document.createElement("tr");
+
+            newRow.innerHTML = `
+                  <td>${product.title}</td>
+                  <td>$${product.price.toFixed(2)}</td>
+                  <td><img src="${product.image}" alt="${
+                            product.title
+                          }" style="height: 50px;"></td>
+                  <td>${product.stock}</td>
+                  <td>
+                    <button class="btn btn-sm" data-product="${
+                      product.id
+                    }"><img src="./images/cart.png" alt="cart" width="40" style="background-color: none;"/></button>
+                  </td>
+                `;
+
+            const addToCartButton = newRow.querySelector(
+              "button[data-product]"
+            );
+            addToCartButton.addEventListener("click", () => {
+              const productId = Number(addToCartButton.dataset.product);
+              const productToAdd = data.find((p) => p.id === productId);
+              document.getElementById("cartTable").style.display = "";
+              document.getElementById("placeOrder").style.display = "";
+
+              document.getElementById("big-text").style.display = "none";
+
+              if (productToAdd && productToAdd.stock > 0) {
+                const existingCartItemIndex = cart.findIndex(
+                  (item) => item.id === productToAdd.id
+                );
+
+                if (existingCartItemIndex > -1) {
+                  const existingCartItem = cart[existingCartItemIndex];
+                  if (existingCartItem.quantity < productToAdd.stock) {
+                    existingCartItem.quantity++;
+                    existingCartItem.userId = userId;
+                    updateCart(existingCartItem);
+                  }
+                } else {
+                  cart.push({ ...productToAdd, quantity: 1 });
+                  productToAdd.userId = userId;
+                  fetch("http://localhost:3000/cart/add", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(productToAdd),
+                  }).then((response) => {
+                    if (!response.ok) {
+                      throw new Error("Failed to add item to cart");
+                    }
+                    return response.json();
+                  });
+                }
+
+                renderCart();
+              }
+            });
+
+            tbody.appendChild(newRow);
+          }
+
+          function renderCart() {
+            const tbodyCartList = document.querySelector("#tbodyCartList");
+            tbodyCartList.innerHTML = "";
+
+            let total = 0;
+
+            if (cart.length === 0) {
+              console.log(document.getElementById("big-text"));
+              document.getElementById("big-text").style.display = "";
+              document.getElementById("cartTable").style.display = "none";
+              document.getElementById("placeOrder").style.display = "none";
+
+            }
+
+            for (const product of cart) {
+              const productTotal = product.price * product.quantity;
+              total += productTotal;
+
+              const newRow = document.createElement("tr");
+              newRow.innerHTML = `
+                            <td>${product.title}</td>
+                            <td>$${product.price.toFixed(2)}</td>
+                            <td>$${productTotal.toFixed(2)}</td>
+
+                            <td>
+                              <div class="input-group">
+                                <button type="button" class="btn btn-outline-secondary minus-button" data-product="${
+                                  product.id
+                                }">-</button>
+                                <input type="number" min="1" class="form-control quantity-input" value="${
+                                  product.quantity
+                                }" data-product="${product.id}">
+                                <button type="button" class="btn btn-outline-secondary plus-button" data-product="${
+                                  product.id
+                                }">+</button>
+                              </div>
+                            </td>
+                          `;
+
+              tbodyCartList.appendChild(newRow);
+
+              // Add event listeners to the plus and minus buttons for each item in the cart
+              const minusButton = newRow.querySelector(".minus-button");
+              minusButton.addEventListener("click", () => {
+                const productId = Number(minusButton.dataset.product);
+                const productToEdit = cart.find((p) => p.id === productId);
+
+                if (productToEdit && productToEdit.quantity > 1) {
+                  productToEdit.quantity--;
+                  productToEdit.userId = userId;
+
+                  updateCart(productToEdit);
+                  renderCart();
+                } else if (productToEdit && productToEdit.quantity === 1) {
+                  newRow.remove();
+
+                  // Remove the item from the cart array
+                  const index = cart.findIndex((p) => p.id === productId);
+                  if (index > -1) {
+                    cart.splice(index, 1);
+                  }
+                  productToEdit.quantity--;
+                  if (productToEdit.quantity === 0) {
+                    productToEdit.userId = userId;
+                    updateCart(productToEdit);
+                  }
+                  renderCart();
+                }
+              });
+
+              const plusButton = newRow.querySelector(".plus-button");
+              plusButton.addEventListener("click", async () => {
+                const productId = Number(plusButton.dataset.product);
+                const productToEdit = cart.find((p) => p.id === productId);
+
+                if (productToEdit && productToEdit.quantity < product.stock) {
+                  productToEdit.quantity++;
+                  renderCart();
+                  productToEdit.userId = userId;
+
+                  updateCart(productToEdit);
+                }
+              });
+
+              // Add event listener to the quantity input field
+              const quantityInput = newRow.querySelector(".quantity-input");
+              quantityInput.setAttribute("readonly", true);
+
+              quantityInput.addEventListener("input", () => {
+                const productId = Number(quantityInput.dataset.product);
+                const productToEdit = cart.find((p) => p.id === productId);
+
+                if (productToEdit && quantityInput.validity.valid) {
+                  productToEdit.quantity = Number(quantityInput.value);
+                  renderCart();
+                }
+              });
+            }
+
+            const totalSum = document.querySelector("#totalSum");
+            totalSum.textContent = `$${total.toFixed(2)}`;
+          }
+        })
+        .catch((error) => console.error(error));
+
+      function updateCart(item) {
+        fetch("http://localhost:3000/cart/update", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(item),
+        }).then((response) => {
+          return response.json();
+        });
+      }
+
+      function updateProduct() {
+        fetch(`http://localhost:3000/cart/all/${userId}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            fetch("http://localhost:3000/products/update", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ data: data }),
+            }).then((response) => {
+              //
+              fetch(`http://localhost:3000/cart/empty/${userId}`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+              }).then((response) => {
+                window.location.href = "index.html";
+
+                return response.json();
+              });
+              return response.json();
+            });
+          });
+      }
+
+      function signOut() {
+        // Remove the JWT token from the browser's local storage
+        localStorage.removeItem("token");
+
+        // Redirect the user to the login page
+        window.location.href = "login.html";
+      }
+    </script>
+
+    <!-- Start footer -->
+    <footer>
+      <div>
+        <span style="margin-left: 1em"> ::: CS472-WAP</span>
+        <span style="float: right; margin-right: 1em"> &copy; April 2023</span>
+      </div>
+    </footer>
+  </body>
+</html>
